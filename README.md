@@ -13,7 +13,7 @@ NFD2.0拥有无限配额（自建有每日1k消息上限），且托管在[cloud
 # NFD
 No Fraud / Node Forward Bot
 
-一个基于cloudflare worker的telegram 消息转发bot，集成了反欺诈功能
+一个基于cloudflare worker的telegram 消息转发bot
 
 ## 特点
 - 基于cloudflare worker搭建，能够实现以下效果
@@ -41,11 +41,6 @@ No Fraud / Node Forward Bot
 - 当其他用户给bot发消息，会被转发到bot创建者
 - 用户回复普通文字给转发的消息时，会回复到原消息发送者
 - 用户回复`/block`, `/unblock`, `/checkblock`等命令会执行相关指令，**不会**回复到原消息发送者
-
-## 欺诈数据源
-- 文件[fraud.db](./fraud.db)为欺诈数据，格式为每行一个uid
-- 可以通过pr扩展本数据，也可以通过提issue方式补充
-- 提供额外欺诈信息时，需要提供一定的消息出处
 
 ## Thanks
 - [telegram-bot-cloudflare](https://github.com/cvzi/telegram-bot-cloudflare)
