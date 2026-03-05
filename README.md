@@ -1,6 +1,6 @@
 ## 更新
 
-欢迎使用我们NFD2.0项目🎉，1分钟内快速搭建教程：
+1分钟内快速搭建教程：
 
 > 用户先去[@BotFather](https://t.me/NodeForwardBot/BotFather)，输入 `/newbot` ，按照指引输入你要创建的机器人的昵称和名字，点击复制机器人吐出的token
 > 
