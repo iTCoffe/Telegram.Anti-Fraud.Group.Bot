@@ -46,10 +46,18 @@
 6. 验证配置是否生效
     - URL：https://你的Worker域名/sendTime?secret=ENV_BOT_SECRET
 
-## 使用方法
-- 当其他用户给bot发消息，会被转发到bot创建者
-- 用户回复普通文字给转发的消息时，会回复到原消息发送者
-- 用户回复`/block`, `/unblock`, `/checkblock`等命令会执行相关指令，**不会**回复到原消息发送者
+## 核心功能总结
+    - 基础功能保留：双向消息转发、北京时间整点 / 半点提醒、Webhook 注册 / 注销全部保留且正常运行；
+    - 反诈识别全覆盖：
+    - 文本识别：覆盖刷单、客服、公检法、婚恋杀猪盘、冒充领导、AI 换脸、养老诈骗等 2025 所有主流类型；
+    - KV 数据库：支持手动 / 批量新增自定义诈骗数据，实现个性化识别；
+    - 管理员专属命令：
+    - /initdb：初始化基础诈骗数据（无需手动添加）；
+    - /addscam 关键词 类型 描述：新增单条自定义数据；
+    - /queryscam 关键词：查询诈骗数据；
+    - /scamstats：查看数据统计；
+    - /batchaddscam [JSON数组]：批量导入自定义数据；
+    - 双引擎识别：文本特征检测 + KV 数据库匹配，无数据也能识别，有数据更精准。
 
 ## Thanks
 - [telegram-bot-cloudflare](https://github.com/cvzi/telegram-bot-cloudflare)
