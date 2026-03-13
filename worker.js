@@ -135,17 +135,26 @@ async function getScamStats() {
     return stats;
 }
 
-async function listAllScamData(limit = 50, offset = 0) {
+// 注意：Cloudflare KV 的 list 方法不支持 offset 参数，实际分页需使用 cursor
+// 此处简化实现，直接列出所有 key 并获取数据，适用于数据量不大的场景
+async function listAllScamData(limit = 1000) {
     const list = [];
-    const keys = await cfbot.list({ prefix: 'scam-', limit, offset });
-
-    for (const key of keys.keys) {
-        if (key.name !== 'scam-stats') {
-            const data = await cfbot.get(key.name, { type: 'json' });
-            if (data) list.push(data);
+    let cursor = undefined;
+    do {
+        const options = { prefix: 'scam-' };
+        if (limit) options.limit = limit;
+        if (cursor) options.cursor = cursor;
+        
+        const result = await cfbot.list(options);
+        for (const key of result.keys) {
+            if (key.name !== 'scam-stats') {
+                const data = await cfbot.get(key.name, { type: 'json' });
+                if (data) list.push(data);
+            }
         }
-    }
-
+        cursor = result.cursor;
+    } while (cursor);
+    
     return list;
 }
 
@@ -327,10 +336,23 @@ addEventListener('fetch', event => {
     if (url.pathname === WEBHOOK) {
         event.respondWith(handleWebhook(event));
     } else if (url.pathname === '/registerWebhook') {
-        event.respondWith(registerWebhook(event, url, WEBHOOK, SECRET));
+        // 增加密钥验证，防止未授权调用
+        const requestSecret = url.searchParams.get('secret');
+        if (requestSecret !== SECRET) {
+            event.respondWith(new Response('❌ 密钥错误，拒绝访问', { status: 403 }));
+        } else {
+            event.respondWith(registerWebhook(event, url, WEBHOOK, SECRET));
+        }
     } else if (url.pathname === '/unRegisterWebhook') {
-        event.respondWith(unRegisterWebhook(event));
+        // 增加密钥验证
+        const requestSecret = url.searchParams.get('secret');
+        if (requestSecret !== SECRET) {
+            event.respondWith(new Response('❌ 密钥错误，拒绝访问', { status: 403 }));
+        } else {
+            event.respondWith(unRegisterWebhook(event));
+        }
     } else if (url.pathname === '/setcommands') {
+        // setcommands 原本就有密钥验证，保持不变
         event.respondWith(handleSetCommands(event));
     } else {
         event.respondWith(new Response('✅ 反诈机器人运行中（仅群聊检测）', { status: 200 }));
@@ -435,13 +457,14 @@ async function onMessage(message) {
         if (message.text === '/start') {
             const startText = `
 <b>👋 欢迎使用反诈机器人！</b>
-我在群组中会自动检测可疑诈骗消息并发出警告。
-管理员可使用以下命令管理诈骗数据库：
-/addscam - 添加诈骗数据（管理员）
-/queryscam - 查询诈骗数据
-/scamstats - 查看数据库统计
-/initdb - 初始化数据库（管理员）
-/batchaddscam - 批量导入（管理员）
+├─ 🚨 反诈防护：自动检测所有主流诈骗类型 🛡️
+├─自动检测可疑诈骗消息并发出警告。
+├─管理员可使用以下命令管理诈骗数据库：
+├─/addscam - 添加诈骗数据（管理员）
+├─/queryscam - 查询诈骗数据
+├─/scamstats - 查看数据库统计
+├─/initdb - 初始化数据库（管理员）
+└─/batchaddscam - 批量导入（管理员）
       `.trim();
             return sendMessage(chatId, startText);
         }
