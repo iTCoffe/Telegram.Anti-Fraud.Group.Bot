@@ -50,7 +50,7 @@
 
 7. **注册 Webhook**  
    在浏览器中访问以下 URL（替换 `your-worker.workers.dev` 为你的 Worker 域名）：
-   https://your-worker.workers.dev/registerWebhook
+   https://your-worker.workers.dev/registerWebhook?secret=你的密钥
 
    如果显示“✅ Webhook 注册成功”，则 Webhook 设置完成。
 
